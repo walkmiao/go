@@ -96,6 +96,8 @@ import (
 //   // Field appears in JSON as key "-".
 //   Field int `json:"-,"`
 //
+//  tag中包含string的一般是用来与js程序交互的
+
 // The "string" option signals that a field is stored as JSON inside a
 // JSON-encoded string. It applies only to fields of string, floating point,
 // integer, or boolean types. This extra level of encoding is sometimes used

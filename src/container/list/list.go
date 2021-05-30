@@ -2,8 +2,9 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+
+
 // Package list implements a doubly linked list.
-//
 // To iterate over a list (where l is a *List):
 //	for e := l.Front(); e != nil; e = e.Next() {
 //		// do something with e.Value
@@ -11,7 +12,7 @@
 //
 package list
 
-// Element is an element of a linked list.
+// Element is an element of a linked list. 双向链表
 type Element struct {
 	// Next and previous pointers in the doubly-linked list of elements.
 	// To simplify the implementation, internally a list l is implemented
@@ -29,6 +30,7 @@ type Element struct {
 
 // Next returns the next list element or nil.
 func (e *Element) Next() *Element {
+	//为什么不直接用e.next 1. 暴露接口给外部使用 2.避免next是root而造成死循环
 	if p := e.next; e.list != nil && p != &e.list.root {
 		return p
 	}
@@ -82,6 +84,7 @@ func (l *List) Back() *Element {
 }
 
 // lazyInit lazily initializes a zero List value.
+//延迟初始化 延迟初始化避免程序刚开始就要初始化 实现了开箱即用 比如var l List 立即即可使用。在插入第一个元素的几个方法中都会保证延迟初始化
 func (l *List) lazyInit() {
 	if l.root.next == nil {
 		l.Init()
@@ -100,6 +103,8 @@ func (l *List) insert(e, at *Element) *Element {
 }
 
 // insertValue is a convenience wrapper for insert(&Element{Value: v}, at).
+//为什么有insert element 还要有inset value? 因为insert element被设计为私有的，外界只能通过insert value来达到插入元素的目的。
+// 这样做可以避免外部直接插入Element，因为这不确定它对链表是否具有破坏性。所以只开放了value由内部方法生成element再插入
 func (l *List) insertValue(v interface{}, at *Element) *Element {
 	return l.insert(&Element{Value: v}, at)
 }
@@ -158,6 +163,8 @@ func (l *List) PushBack(v interface{}) *Element {
 // InsertBefore inserts a new element e with value v immediately before mark and returns e.
 // If mark is not an element of l, the list is not modified.
 // The mark must not be nil.
+//Insert的几个方法为什么只需要判断mark的链表是否和list一样就可以而不需要延迟初始化? 因为如果mark的链表和list对不上 就可以直接结束。
+//而如果是一致的只能说明list已经初始化过了。在初始化几个函数中已经保证了延迟初始化。
 func (l *List) InsertBefore(v interface{}, mark *Element) *Element {
 	if mark.list != l {
 		return nil
